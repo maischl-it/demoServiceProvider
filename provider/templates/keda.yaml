@@ -2,16 +2,26 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ include "helmplanet.fullname" . }}
+  name: {{ include "provider.fullname" . }}
   labels:
-    {{- include "helmplanet.labels" . | nindent 4 }}
+    {{- include "provider.labels" . | nindent 4 }}
+  annotations:
+     "helm.sh/hook": "post-install"
 spec:
   scaleTargetRef:
-    name: {{ include "helmplanet.fullname" . }}
+    name: {{ include "provider.fullname" . }}
   triggers:
   - type: cron
     {{- with .Values.keda.metadata }}
     metadata:
        {{- toYaml . | nindent 8 }}
     {{- end }}
+  - type: metrics-api
+    metadata:
+      targetValue: "8"
+      url: "http://consumer/metrics"
+      valueLocation: 'value'
+      desiredReplicas: "3"
+  minReplicaCount: 1
+  maxReplicaCount: 12
 {{- end -}}

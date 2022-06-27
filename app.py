@@ -1,4 +1,3 @@
-from defer import return_value
 from flask import Flask
 import os
 
