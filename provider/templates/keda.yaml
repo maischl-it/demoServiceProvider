@@ -8,12 +8,27 @@ metadata:
 spec:
   scaleTargetRef:
     name: {{ include "provider.fullname" . }}
+  minReplicaCount: 1
+  maxReplicaCount: 12
+  advanced:
+    horizontalPodAutoscalerConfig:                   
+      behavior:                                      
+        scaleUp:
+          stabilizationWindowSeconds: 10
+          policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+        scaleDown:
+          stabilizationWindowSeconds: 10
+          policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
   triggers:
   - type: metrics-api
     metadata:
       targetValue: "2"
       url: "http://consumer/metrics"
       valueLocation: 'value'
-  minReplicaCount: 1
-  maxReplicaCount: 12
 {{- end -}}
