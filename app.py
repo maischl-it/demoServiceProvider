@@ -1,21 +1,48 @@
-from flask import Flask
+import requests
 import os
 
-app = Flask(__name__)
+from flask import Flask, request
 
+from opentelemetry import trace
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
+from opentelemetry.sdk.trace import TracerProvider
+
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+
+app = Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+
+tracer=None
 
 @app.route("/", methods=['POST', 'GET'])
 def home():
+    carrier = {'traceparent': request.headers["TRACEPARENT"]}
+    ctx = TraceContextTextMapPropagator().extract(carrier=carrier)
 
-    text = "provider"
+    with tracer.start_as_current_span('spanProvider', context=ctx) as span:
+        span.set_attribute("application","provider")
+        requests.get("https://web.de")
 
-    returnValue = text, 200
-
-    if os.environ.get("fail", "false") == 'true':
-        returnValue = "failed", 500
-
-    return returnValue
+    return "provider"
 
 
 if __name__ == '__main__':
+    trace.set_tracer_provider(TracerProvider())
+
+    jaeger_exporter=JaegerExporter(
+        agent_host_name="172.17.0.3",
+        agent_port=6831
+    )
+
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(jaeger_exporter)
+    )
+
+    tracer=trace.get_tracer(__name__)
+
     app.run(host='0.0.0.0', port=3000)
