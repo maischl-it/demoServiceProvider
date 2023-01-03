@@ -35,7 +35,7 @@ if __name__ == '__main__':
     trace.set_tracer_provider(TracerProvider())
 
     jaeger_exporter=JaegerExporter(
-        agent_host_name="172.17.0.3",
+        agent_host_name="simplest-agent.default.svc.cluster.local",
         agent_port=6831
     )
 
