@@ -1,5 +1,5 @@
 import requests
-import os
+import time
 
 from flask import Flask, request
 
@@ -12,6 +12,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 app = Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
@@ -26,15 +27,23 @@ def home():
 
     with tracer.start_as_current_span('spanProvider', context=ctx) as span:
         span.set_attribute("application","provider")
-        requests.get("https://web.de")
+    requests.get("https://web.de")
+
+    time.sleep(2)
+
+    requests.get("https://google.de")
 
     return "provider"
 
 
 if __name__ == '__main__':
-    trace.set_tracer_provider(TracerProvider())
+    trace.set_tracer_provider(
+        TracerProvider(resource=Resource.create({SERVICE_NAME: "DemoProvider"}))
+
+    )
 
     jaeger_exporter=JaegerExporter(
+        # agent_host_name="172.17.0.2",
         agent_host_name="simplest-agent.default.svc.cluster.local",
         agent_port=6831
     )
@@ -42,7 +51,7 @@ if __name__ == '__main__':
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(jaeger_exporter)
     )
-
+    
     tracer=trace.get_tracer(__name__)
 
     app.run(host='0.0.0.0', port=3000)
