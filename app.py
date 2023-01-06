@@ -68,7 +68,7 @@ if __name__ == '__main__':
     
     tracer=trace.get_tracer(__name__)
 
-    pool = redis.ConnectionPool(host='redis-master.demo.svc.cluster.local', port=6379, db=0)
+    pool = redis.ConnectionPool(host='redis-master.demo.svc.cluster.local', port=6379, db=0, password="lEoa6dGvGP")
     redis = redis.Redis(connection_pool=pool)
 
     app.run(host='0.0.0.0', port=3000)
