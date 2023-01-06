@@ -34,18 +34,21 @@ def home():
 
     time.sleep(2)
 
-    requests.get("https://google.de")
-
-    return "provider"
-
-@app.route("/redis")
-def redisDemo():
     redis.set('testkey', 'Hello Meetup')
     
     entry = redis.get('testkey')
     print(entry)
 
     return entry
+
+# @app.route("/redis")
+# def redisDemo():
+#     redis.set('testkey', 'Hello Meetup')
+    
+#     entry = redis.get('testkey')
+#     print(entry)
+
+#     return entry
 
 if __name__ == '__main__':
     trace.set_tracer_provider(
