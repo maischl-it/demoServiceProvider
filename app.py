@@ -1,5 +1,6 @@
 import requests
 import time
+import redis
 
 from flask import Flask, request
 
@@ -35,6 +36,14 @@ def home():
 
     return "provider"
 
+@app.route("/redis")
+def redisDemo():
+    redis.set('testkey', 'Hello Meetup')
+    
+    entry = redis.get('testkey')
+    print(entry)
+
+    return entry
 
 if __name__ == '__main__':
     trace.set_tracer_provider(
@@ -53,5 +62,8 @@ if __name__ == '__main__':
     )
     
     tracer=trace.get_tracer(__name__)
+
+    pool = redis.ConnectionPool(host='redis-master.demo.svc.cluster.local', port=6379, db=0)
+    redis = redis.Redis(connection_pool=pool)
 
     app.run(host='0.0.0.0', port=3000)
