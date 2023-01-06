@@ -7,6 +7,7 @@ from flask import Flask, request
 from opentelemetry import trace
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.redis import RedisInstrumentor
 
 from opentelemetry.sdk.trace import TracerProvider
 
@@ -18,6 +19,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 app = Flask(__name__)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
+RedisInstrumentor().instrument()
 
 tracer=None
 

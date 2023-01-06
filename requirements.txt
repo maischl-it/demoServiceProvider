@@ -4,5 +4,6 @@ opentelemetry-api
 opentelemetry-sdk
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-redis
 opentelemetry-exporter-jaeger
 redis
