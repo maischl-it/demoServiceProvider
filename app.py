@@ -41,23 +41,12 @@ def home():
 
     return entry
 
-# @app.route("/redis")
-# def redisDemo():
-#     redis.set('testkey', 'Hello Meetup')
-    
-#     entry = redis.get('testkey')
-#     print(entry)
-
-#     return entry
-
 if __name__ == '__main__':
     trace.set_tracer_provider(
         TracerProvider(resource=Resource.create({SERVICE_NAME: "DemoProvider"}))
-
     )
 
     jaeger_exporter=JaegerExporter(
-        # agent_host_name="172.17.0.2",
         agent_host_name="simplest-agent.default.svc.cluster.local",
         agent_port=6831
     )
